@@ -1,10 +1,12 @@
-import './assets/main.css'
+
 
 import { createApp } from 'vue'
-import App from './App.vue'
+import Nav from './Nav.vue'
 import router from './router'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 
-const app = createApp(App)
+const app = createApp(Nav)
 
 app.use(router)
 
