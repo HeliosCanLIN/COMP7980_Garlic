@@ -1,5 +1,56 @@
 <script setup>
+import {ref} from "vue";
+import {  useRouter } from "vue-router";
+import CryptoJS from 'crypto-js';
 
+
+const router = useRouter();
+
+const register = ref({
+  username:"",
+  password:"",
+  confirmPassword:""
+})
+
+const submitSignup = async () => {
+  if(register.value.username==""){
+    alert("用户名未填写");
+    return;
+  }
+  if(register.value.password==""){
+    alert("密码未填写");
+    return;
+  }
+  if(register.value.confirmPassword==""){
+    alert("请填写再次输入密码");
+    return;
+  }
+  if(register.value.confirmPassword!=register.value.password){
+    alert("请确认两次填写的密码是否一致");
+    return;
+
+  }
+  try{
+    register.value.password=CryptoJS.MD5(register.value.password).toString();
+    register.value.confirmPassword=CryptoJS.MD5(register.value.confirmPassword).toString();
+    const response = await fetch('api/users/register/', {
+      method:'POST',
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(register.value)
+    });
+    const data = await response.json();
+    if(!response.ok){
+      throw new Error(data.message)
+    }else{
+      // localStorage.setItem("token", data.token);
+      // localStorage.setItem("username",data.username);
+      alert("注册成功");
+      await router.push('/SignIn');
+    }
+  }catch (error){
+    alert(error);
+  }
+}
 </script>
 <template>
   <div class="container mt-5">
@@ -10,23 +61,23 @@
     </div>
 
     <!-- Registration Form -->
-    <form class="mx-auto" style="max-width: 400px;">
+    <form v-on:submit.prevent="submitSignup" class="mx-auto" style="max-width: 400px;">
       <!-- Username Input -->
       <div class="mb-3">
         <label for="username" class="form-label">用户名</label>
-        <input type="text" class="form-control" id="username" placeholder="请输入用户名" />
+        <input type="text" v-model="register.username" class="form-control" id="username" placeholder="请输入用户名" />
       </div>
 
       <!-- Password Input -->
       <div class="mb-3">
         <label for="password" class="form-label">密码</label>
-        <input type="password" class="form-control" id="password" placeholder="请输入密码" />
+        <input type="password" v-model="register.password" class="form-control" id="password" placeholder="请输入密码" />
       </div>
 
       <!-- Re-enter Password Input -->
       <div class="mb-3">
         <label for="confirm-password" class="form-label">再次输入密码</label>
-        <input type="password" class="form-control" id="confirm-password" placeholder="请再次输入密码" />
+        <input type="password" v-model="register.confirmPassword" class="form-control" id="confirm-password" placeholder="请再次输入密码" />
       </div>
 
       <!-- Register Button -->
@@ -37,7 +88,7 @@
 
     <!-- Login Link -->
     <div class="text-center mt-3">
-      <a href="#" class="text-decoration-none">已有账号?</a>
+      <router-link to="/SignIn">已有账号?</router-link>
     </div>
 
     <!-- Footer -->
