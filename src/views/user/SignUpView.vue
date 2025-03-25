@@ -12,6 +12,11 @@ const register = ref({
   confirmPassword:""
 })
 
+const submitData=ref({
+  username: "",
+  password: "",
+})
+
 const submitSignup = async () => {
   if(register.value.username==""){
     alert("用户名未填写");
@@ -31,12 +36,13 @@ const submitSignup = async () => {
 
   }
   try{
-    register.value.password=CryptoJS.MD5(register.value.password).toString();
-    register.value.confirmPassword=CryptoJS.MD5(register.value.confirmPassword).toString();
+    submitData.value.password=CryptoJS.MD5(register.value.password).toString();
+    submitData.value.username=register.value.username.toString();
+
     const response = await fetch('api/users/register/', {
       method:'POST',
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(register.value)
+      body:JSON.stringify(submitData.value)
     });
     const data = await response.json();
     if(!response.ok){

@@ -1,12 +1,16 @@
 <script setup>
 import {ref, onMounted} from "vue";
+import {useRouter} from "vue-router";
+
+const router = useRouter();
 
 const UserLogined = ref(false);
 const UserName = ref("");
 
-const logOut = function (){
+const logOut = async function (){
   localStorage.removeItem("token");
   localStorage.removeItem("username");
+  await router.push('/');
   location.reload();
 }
 
@@ -84,7 +88,8 @@ onMounted(() => {
 
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
           <li><a class="dropdown-item" href="#">Profile</a></li>
-          <li><a class="dropdown-item" href="#">Grades</a></li>
+          <RouterLink to="/ChangePassword"><li><a class="dropdown-item" >ChangePassword</a></li></RouterLink>
+
           <li><a class="dropdown-item text-danger"  @click="logOut">Log out</a></li>
         </ul>
       </div>
