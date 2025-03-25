@@ -10,6 +10,11 @@ const userInfo = ref({
   password:"",
 })
 
+const userInfoSubmit = ref({
+  username:"",
+  password:"",
+})
+
 const login = async () => {
   if(userInfo.value.username==""){
     alert("用户名未填写");
@@ -21,11 +26,12 @@ const login = async () => {
   }
 
   try{
-    userInfo.value.password=CryptoJS.MD5(userInfo.value.password).toString();
+    userInfoSubmit.value.password=CryptoJS.MD5(userInfo.value.password).toString();
+    userInfoSubmit.value.username=userInfo.value.username.toString();
     const response = await fetch('api/users/login', {
       method:'POST',
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(userInfo.value)
+      body:JSON.stringify(userInfoSubmit.value)
     });
     const data = await response.json();
     if(!response.ok){
