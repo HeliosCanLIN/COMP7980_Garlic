@@ -1,5 +1,5 @@
 <script setup>
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import {  useRouter } from "vue-router";
 import CryptoJS from "crypto-js";
 
@@ -48,6 +48,13 @@ const login = async () => {
     alert(error);
   }
 }
+
+ onMounted(async ()=>{
+  var id=localStorage.getItem("id");
+  if(id!=null){
+    await router.push('/');
+  }
+})
 </script>
 <template>
   <div class="container mt-5">

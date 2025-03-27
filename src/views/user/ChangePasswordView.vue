@@ -9,6 +9,7 @@ const router = useRouter();
 const access=ref(true);
 
 const userInfo = ref({
+  id:"",
   username: "",
   oldPassword: "",
   newPassword: "",
@@ -19,6 +20,7 @@ const userInfo = ref({
 const submitInfo = ref({
   username: "",
   password: "",
+  id:"",
 });
 
 const submitChangePassword =  async () => {
@@ -46,6 +48,7 @@ const submitChangePassword =  async () => {
   try{
     submitInfo.value.password=CryptoJS.MD5(userInfo.value.newPassword).toString();
     submitInfo.value.username=userInfo.value.username.toString();
+    submitInfo.value.id=userInfo.value.id.toString();
 
     const response = await fetch('api/users/changePassword/', {
       method:'POST',
@@ -60,6 +63,7 @@ const submitChangePassword =  async () => {
       alert("更改成功，请重新登录");
       localStorage.removeItem("token");
       localStorage.removeItem("username");
+      localStorage.removeItem("id");
       await router.push('/');
       location.reload();
     }
@@ -74,6 +78,7 @@ onMounted(()=>{
 
     access.value = true;
     userInfo.value.username = username;
+    userInfo.value.id = localStorage.getItem("id");
 
   } else {
 
@@ -97,6 +102,7 @@ onMounted(()=>{
       <div class="mb-3">
         <label for="username" class="form-label">用户名</label>
         <input type="text" v-model="userInfo.username" class="form-control" id="username" disabled="disabled"  />
+        <input type="hidden" v-model="userInfo.id" class="form-control" id="id" disabled="disabled"  />
       </div>
 
 
