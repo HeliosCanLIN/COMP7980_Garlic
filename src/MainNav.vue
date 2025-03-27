@@ -87,7 +87,7 @@ onMounted(() => {
         </button>
 
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
-          <li><a class="dropdown-item" href="#">Profile</a></li>
+          <RouterLink to="/profile"><li><a class="dropdown-item" >Profile</a></li></RouterLink>
           <RouterLink to="/ChangePassword"><li><a class="dropdown-item" >ChangePassword</a></li></RouterLink>
 
           <li><a class="dropdown-item text-danger"  @click="logOut">Log out</a></li>
