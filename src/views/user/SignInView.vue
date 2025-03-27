@@ -40,6 +40,7 @@ const login = async () => {
       alert("Welcome Home")
       localStorage.setItem("token", data.token);
       localStorage.setItem("username",data.username);
+      localStorage.setItem("id",data.id);
       await router.push('/');
       location.reload();
     }
