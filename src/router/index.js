@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import IndexView from "@/views/IndexView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -7,7 +7,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView,
+      component: IndexView,
     },
     {
       path: '/about',
@@ -35,6 +35,28 @@ const router = createRouter({
 
       component: () => import('../views/user/ChangePasswordView.vue'),
     },
+    {
+      path: '/profile',
+      name: 'profile',
+
+      component: () => import('../views/user/ProfileView.vue'),
+
+    },
+    {
+      path: '/post/:id',
+      name: 'post',
+      component: () => import('@/views/post/PostView.vue'),
+      props: (route) => ({
+        id: route.params.id,
+        page: Number(route.query.page) || 1
+      }),
+    },
+    {
+      path: '/Error',
+      name: 'Error',
+
+      component: () => import('../views/Error/RouterError.vue'),
+    }
   ],
 })
 
