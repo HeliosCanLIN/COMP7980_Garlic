@@ -43,6 +43,15 @@ const router = createRouter({
 
     },
     {
+      path: '/post/:id',
+      name: 'post',
+      component: () => import('@/views/post/PostView.vue'),
+      props: (route) => ({
+        id: route.params.id,
+        page: Number(route.query.page) || 1
+      }),
+    }
+    {
       path: '/Error',
       name: 'Error',
 
