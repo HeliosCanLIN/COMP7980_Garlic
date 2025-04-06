@@ -42,6 +42,15 @@ const router = createRouter({
       component: () => import('../views/user/ProfileView.vue'),
 
     },
+    {
+      path: '/post/:id',
+      name: 'post',
+      component: () => import('@/views/post/PostView.vue'),
+      props: (route) => ({
+        id: route.params.id,
+        page: Number(route.query.page) || 1
+      }),
+    }
   ],
 })
 
