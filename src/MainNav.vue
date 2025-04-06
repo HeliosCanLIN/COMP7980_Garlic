@@ -10,15 +10,33 @@ const UserName = ref("");
 const logOut = async function (){
   localStorage.removeItem("token");
   localStorage.removeItem("username");
+  localStorage.removeItem("id");
   await router.push('/');
   location.reload();
 }
 
-onMounted(() => {
+onMounted(async () => {
   const username = localStorage.getItem("username");
+  const token = localStorage.getItem("token");
   if (username != "" && username != null) {
     UserLogined.value = true;
     UserName.value = username;
+    const response=await fetch('/api/test/auth',{
+      headers:{
+        "authorization": `Bearer ${token}`
+      }
+    });
+    console.log(response.ok);
+    if(!response.ok){
+      UserLogined.value = false;
+      localStorage.removeItem("token");
+      localStorage.removeItem("username");
+      localStorage.removeItem("id");
+      await router.replace({
+        path:'/Error',
+        query:{errorMessage:"您的登录状态已过期，请重新登录"}
+      });
+    }
   } else {
     UserLogined.value = false;
   }
@@ -28,7 +46,7 @@ onMounted(() => {
 <template>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <!-- 左侧 Logo -->
-    <a class="navbar-brand" href="#">Garlic Enjoyer</a>
+    <a class="navbar-brand" href="/">Garlic Enjoyer</a>
 
     <!-- 响应式折叠按钮 -->
     <button
