@@ -50,7 +50,7 @@ const router = createRouter({
         id: route.params.id,
         page: Number(route.query.page) || 1
       }),
-    }
+    },
     {
       path: '/Error',
       name: 'Error',
