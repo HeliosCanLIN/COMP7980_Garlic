@@ -38,7 +38,7 @@ const submitPost = async () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        // 实际需要添加认证头
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
       },
       body: JSON.stringify(newPost.value)
     })

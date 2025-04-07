@@ -6,7 +6,7 @@ const route = useRoute()
 const router = useRouter()
 
 const fetchPost = async (postId) => {
-  const response = await fetch(`/api/posts/${postId}`,{
+  const response = await fetch(`/api/posts/${postId}`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -18,7 +18,7 @@ const fetchPost = async (postId) => {
 
 const fetchComments = async (postId, page = 1, pageSize = 10) => {
   const response = await fetch(
-    `/api/posts/${postId}/comments?page=${page}&pageSize=${pageSize}`,{
+    `/api/posts/${postId}/comments?page=${page}&pageSize=${pageSize}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -42,7 +42,7 @@ const newComment = ref({
   Content: '',
   replyTo: null, // 回复目标：null为主贴，数字为评论ID
   replyToUserID: null, // 被回复的用户名
-  UserID:localStorage.getItem("id"),
+  UserID: localStorage.getItem("id"),
 })
 
 const activeReplyId = ref(null) // 当前正在回复的评论ID
@@ -117,7 +117,6 @@ const handleError = (error) => {
   }
 }
 
-
 // 页码改变处理器
 const handlePageChange = (newPage) => {
   if (newPage < 1 || newPage > comments.value.totalPages) return
@@ -155,33 +154,6 @@ const visiblePages = computed(() => {
   return pages
 })
 
-
-// 初始化加载
-watch(
-  () => route.params.id,
-  (newId) => {
-    if (newId) {
-      loadPost()
-      loadComments(comments.value.currentPage)
-    }
-  },
-  {immediate: true}
-)
-
-// 监听页码变化
-watch(
-  () => route.query.page,
-  (newPage) => {
-    const page = parseInt(newPage) || 1
-    if (page !== comments.value.currentPage) {
-      comments.value.currentPage = page
-      loadComments(page)
-    }
-  },
-  {immediate: true}
-)
-
-
 // 处理回复按钮点击
 const handleReply = (commentId, userId, userName) => {
   newComment.value.UserName = userName
@@ -198,7 +170,7 @@ const cancelReply = () => {
     Content: '',
     replyTo: null,
     replyToUser: null,
-    UserID:localStorage.getItem("id"),
+    UserID: localStorage.getItem("id"),
   }
   activeReplyId.value = null
 }
@@ -232,7 +204,7 @@ const submitComment = async () => {
 }
 
 // 点赞
-const like = async (targetID,targetType) => {
+const like = async (PostID, CommentID, Type) => {
   try {
     const response = await fetch(`/api/like/add`, {
       method: 'POST',
@@ -242,21 +214,51 @@ const like = async (targetID,targetType) => {
       },
       body: JSON.stringify({
         UserId: localStorage.getItem('id'),
-        TargetID: targetID,
-        TargetType: targetType,
+        PostID: PostID,
+        CommentID: CommentID,
+        Type: Type,
       })
     })
 
     if (!response.ok) throw new Error('点赞失败')
 
     // 重新加载评论列表（简单实现）
-    await loadComments(comments.value.currentPage)
+    if (Type == 'Post') {
+      await loadPost()
+    }
+    if (Type == 'Comment') {
+      await loadComments(comments.value.currentPage)
+    }
 
   } catch (error) {
     console.error('点赞失败:', error)
   }
 }
 
+// 初始化加载
+watch(
+  () => route.params.id,
+  (newId) => {
+    if (newId) {
+      loadPost()
+      loadComments(comments.value.currentPage)
+    }
+  },
+  {immediate: true}
+)
+
+// 监听页码变化
+watch(
+  () => route.query.page,
+  (newPage) => {
+    const page = parseInt(newPage) || 1
+    if (page !== comments.value.currentPage) {
+      comments.value.currentPage = page
+      loadComments(page)
+    }
+  },
+  {immediate: true}
+)
 </script>
 
 <template>
@@ -284,7 +286,7 @@ const like = async (targetID,targetType) => {
               <span>•</span>
               <span>评论：{{ post.Comments }}</span>
               <button class="btn btn-sm btn-outline-secondary badge bg-success"
-                      @click="like(post.PostID, 'Post')">
+                      @click="like(post.PostID, null,'Post')">
                 点赞 +{{ post.Likes || 0 }}
               </button>
             </div>
@@ -315,15 +317,18 @@ const like = async (targetID,targetType) => {
                   </div>
                   <!-- 显示回复对象 -->
                   <div v-if="comment.ReplyToUserID != null" class="text-muted mb-2 small">
-<!--                    回复 @{{ getReplyTarget(comment.replyTo) }}-->
-                    回复 @{{comment.ReplyToUserName}}
+                    <!--                    回复 @{{ getReplyTarget(comment.replyTo) }}-->
+                    回复 @{{ comment.ReplyToUserName }}
                   </div>
                   <p class="mb-2">{{ comment.Content }}</p>
                   <div class="btn-group">
                     <button class="btn btn-sm btn-outline-secondary"
-                            @click="handleReply(comment.CommentID, comment.UserID,comment.UserName)">回复
+                            @click="handleReply(comment.CommentID, comment.UserID,comment.UserName)">
+                      回复
                     </button>
-                    <button class="btn btn-sm btn-outline-secondary" @click="like(comment.CommentID,'Comment')">点赞</button>
+                    <button class="btn btn-sm btn-outline-secondary"
+                            @click="like(post.PostID,comment.CommentID,'Comment')">点赞
+                    </button>
                   </div>
                 </div>
               </div>
