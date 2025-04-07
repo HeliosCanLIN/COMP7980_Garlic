@@ -1,8 +1,8 @@
 <script setup>
 import {ref, onMounted} from 'vue';
-import {useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 const route = useRoute();
-
+const router = useRouter();
 const section = route.query.section || 'XJP';
 
 
@@ -10,7 +10,9 @@ const loading = ref(false);
 
 const posts = ref([]);
 
-
+const showDetail = async (_id)=>{
+    await router.replace('/post/'+_id);
+}
 
 onMounted(async ()=>{
   loading.value=true;
@@ -40,7 +42,7 @@ onMounted(async ()=>{
           <div class="card mb-3">
             <div class="card-body">
               <h5 class="card-title">{{ post.Title }}</h5>
-              <button class="btn btn-primary btn-sm">查看详情</button>
+              <button class="btn btn-primary btn-sm" @click.prevent="showDetail(post._id)">查看详情</button>
             </div>
           </div>
         </div>
