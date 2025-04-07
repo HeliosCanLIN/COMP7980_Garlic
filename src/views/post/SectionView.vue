@@ -38,17 +38,17 @@ onMounted(async ()=>{
 
 <template>
   <div class="container mt-5">
-    <h1 class="text-center mb-4">{{title}}-帖子列表</h1>
+    <h1 class="text-center mb-4">{{title}}-Post Lists</h1>
     <div >
       <div v-if="posts.length === 0" class="text-center">
-        <p>暂无帖子。</p>
+        <p>No Posts.</p>
       </div>
       <div class="row">
         <div class="col-md-12" v-for="post in posts" :key="post._id">
           <div class="card mb-3">
             <div class="card-body">
               <h5 class="card-title">{{ post.Title }}</h5>
-              <button class="btn btn-secondary btn-sm" @click.prevent="showDetail(post._id)">查看详情</button>
+              <button class="btn btn-secondary btn-sm" @click.prevent="showDetail(post._id)">View Details</button>
             </div>
           </div>
         </div>

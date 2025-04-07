@@ -25,24 +25,24 @@ const submitInfo = ref({
 
 const submitChangePassword =  async () => {
   if(userInfo.value.oldPassword==""){
-    alert("旧密码未填写");
+    alert("Old password not filled in");
     return;
   }
   if(userInfo.value.newPassword==""){
-    alert("新密码未填写");
+    alert("New password not filled in");
     return;
   }
   if(userInfo.value.confirmPassword==""){
-    alert("请填写再次输入密码");
+    alert("Please fill in the re-entry password");
     return;
   }
   if(userInfo.value.confirmPassword!=userInfo.value.newPassword){
-    alert("请确认两次填写的密码是否一致");
+    alert("Please make sure that the passwords you fill in twice are the same");
     return;
   }
 
   if(userInfo.value.newPassword==userInfo.value.oldPassword){
-    alert("新旧密码不可以一致");
+    alert("Old and new passwords cannot be the same");
     return;
   }
   try{
@@ -60,7 +60,7 @@ const submitChangePassword =  async () => {
       throw new Error(data.message)
     }else{
 
-      alert("更改成功，请重新登录");
+      alert("Changed successfully, please log in again");
       localStorage.removeItem("token");
       localStorage.removeItem("username");
       localStorage.removeItem("id");
@@ -93,37 +93,37 @@ onMounted(()=>{
     <!-- Logo and Title -->
     <div class="text-center mb-4">
       <h1 class="display-4">Garlic Enjoyer</h1>
-      <h2>密码重置</h2>
+      <h2>Password Reset</h2>
     </div>
 
     <!-- Registration Form -->
     <form v-on:submit.prevent="submitChangePassword" class="mx-auto" style="max-width: 400px;">
       <!-- Username Input -->
       <div class="mb-3">
-        <label for="username" class="form-label">用户名</label>
+        <label for="username" class="form-label">USERNAME</label>
         <input type="text" v-model="userInfo.username" class="form-control" id="username" disabled="disabled"  />
         <input type="hidden" v-model="userInfo.id" class="form-control" id="id" disabled="disabled"  />
       </div>
 
 
       <div class="mb-3">
-        <label for="password" class="form-label">旧密码</label>
-        <input type="password" v-model="userInfo.oldPassword" class="form-control" id="oldpassword" placeholder="请输入密码" />
+        <label for="password" class="form-label">Old Password</label>
+        <input type="password" v-model="userInfo.oldPassword" class="form-control" id="oldpassword" placeholder="Please enter your password" />
       </div>
 
       <div class="mb-3">
-        <label for="newpassword" class="form-label">新密码</label>
-        <input type="password" v-model="userInfo.newPassword" class="form-control" id="newpassword" placeholder="请输入新密码" />
+        <label for="newpassword" class="form-label">New Password</label>
+        <input type="password" v-model="userInfo.newPassword" class="form-control" id="newpassword" placeholder="Please enter your new password" />
       </div>
 
       <div class="mb-3">
-        <label for="confirm-password" class="form-label">再次输入新密码</label>
-        <input type="password" v-model="userInfo.confirmPassword" class="form-control" id="confirm-password" placeholder="请再次输入密码" />
+        <label for="confirm-password" class="form-label">Re-enter the new password</label>
+        <input type="password" v-model="userInfo.confirmPassword" class="form-control" id="confirm-password" placeholder="Please enter your new password again" />
       </div>
 
 
       <div class="d-grid">
-        <button type="submit" class="btn btn-success">重置</button>
+        <button type="submit" class="btn btn-success">Reset</button>
       </div>
     </form>
 

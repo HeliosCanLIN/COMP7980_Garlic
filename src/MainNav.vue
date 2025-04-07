@@ -97,10 +97,10 @@ const goSection3=async ()=>{
       <!-- 右侧按钮 -->
       <div class="d-flex" v-if="!UserLogined">
         <RouterLink to="/SignIn">
-          <button class="btn btn-outline-light me-2"> 登录</button>
+          <button class="btn btn-outline-light me-2"> SIGN IN </button>
         </RouterLink>
         <RouterLink to="/SignUp">
-          <button class="btn btn-success">注册</button>
+          <button class="btn btn-success"> SIGN UP</button>
         </RouterLink>
       </div>
       <div v-else class="dropdown">

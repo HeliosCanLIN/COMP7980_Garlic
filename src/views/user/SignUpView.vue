@@ -19,19 +19,19 @@ const submitData=ref({
 
 const submitSignup = async () => {
   if(register.value.username==""){
-    alert("用户名未填写");
+    alert("Username not filled in");
     return;
   }
   if(register.value.password==""){
-    alert("密码未填写");
+    alert("Password not filled in");
     return;
   }
   if(register.value.confirmPassword==""){
-    alert("请填写再次输入密码");
+    alert("Re-enter confirm password");
     return;
   }
   if(register.value.confirmPassword!=register.value.password){
-    alert("请确认两次填写的密码是否一致");
+    alert("Make sure you enter the same password twice");
     return;
 
   }
@@ -50,7 +50,7 @@ const submitSignup = async () => {
     }else{
       // localStorage.setItem("token", data.token);
       // localStorage.setItem("username",data.username);
-      alert("注册成功");
+      alert("Success!");
       await router.push('/SignIn');
     }
   }catch (error){
@@ -63,38 +63,38 @@ const submitSignup = async () => {
     <!-- Logo and Title -->
     <div class="text-center mb-4">
       <h1 class="display-4">Garlic Enjoyer</h1>
-      <h2>注册</h2>
+      <h2>Sign up</h2>
     </div>
 
     <!-- Registration Form -->
     <form v-on:submit.prevent="submitSignup" class="mx-auto" style="max-width: 400px;">
       <!-- Username Input -->
       <div class="mb-3">
-        <label for="username" class="form-label">用户名</label>
-        <input type="text" v-model="register.username" class="form-control" id="username" placeholder="请输入用户名" />
+        <label for="username" class="form-label">USERNAME</label>
+        <input type="text" v-model="register.username" class="form-control" id="username" placeholder="Please input the username" />
       </div>
 
       <!-- Password Input -->
       <div class="mb-3">
-        <label for="password" class="form-label">密码</label>
-        <input type="password" v-model="register.password" class="form-control" id="password" placeholder="请输入密码" />
+        <label for="password" class="form-label">PASSWORD</label>
+        <input type="password" v-model="register.password" class="form-control" id="password" placeholder="Please input your password" />
       </div>
 
       <!-- Re-enter Password Input -->
       <div class="mb-3">
-        <label for="confirm-password" class="form-label">再次输入密码</label>
-        <input type="password" v-model="register.confirmPassword" class="form-control" id="confirm-password" placeholder="请再次输入密码" />
+        <label for="confirm-password" class="form-label">RE-PASSWORD</label>
+        <input type="password" v-model="register.confirmPassword" class="form-control" id="confirm-password" placeholder="Please input your password again" />
       </div>
 
       <!-- Register Button -->
       <div class="d-grid">
-        <button type="submit" class="btn btn-success">注册</button>
+        <button type="submit" class="btn btn-success">Sign up</button>
       </div>
     </form>
 
     <!-- Login Link -->
     <div class="text-center mt-3">
-      <router-link to="/SignIn">已有账号?</router-link>
+      <router-link to="/SignIn">Already have a account?</router-link>
     </div>
 
     <!-- Footer -->
