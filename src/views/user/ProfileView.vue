@@ -35,7 +35,7 @@ const deleteAccount =async () => {
 <div class="container mt-5">
   <div class="text-center mb-4">
     <h1 class="display-4">{{username}}</h1>
-    <h2>个人资料</h2>
+    <h2>Profile</h2>
   </div>
   <div class="row">
       <div class="col-5th">

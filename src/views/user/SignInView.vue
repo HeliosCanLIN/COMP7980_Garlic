@@ -61,7 +61,7 @@ const login = async () => {
     <!-- Logo and Title -->
     <div class="text-center mb-4">
       <h1 class="display-4">Garlic Enjoyer</h1>
-      <h2>登录</h2>
+      <h2>Log in</h2>
     </div>
 
     <!-- Registration Form -->
@@ -80,7 +80,7 @@ const login = async () => {
 
       <!-- userInfo Button -->
       <div class="d-grid">
-        <button type="submit" class="btn btn-success">登录</button>
+        <button type="submit" class="btn btn-success">Log in</button>
       </div>
     </form>
 
