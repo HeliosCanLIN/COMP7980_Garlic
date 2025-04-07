@@ -5,6 +5,13 @@ import {useRoute, useRouter} from 'vue-router'
 const route = useRoute()
 const router = useRouter()
 
+const postOK = ref(false)
+const postNotFound = ref(false)
+const postDeleted = ref(false)
+const loading = ref({ post: false, comments: false })
+const error = ref({})
+const userId = ref(localStorage.getItem('id')); // 获取当前用户ID
+
 const fetchPost = async (postId) => {
   const response = await fetch(`/api/posts/${postId}`, {
     method: 'GET',
@@ -12,7 +19,10 @@ const fetchPost = async (postId) => {
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     },
   });
-  if (!response.ok) throw new Error('post not found');
+  if (!response.ok) {                // 响应非 200 时处理错误
+    const errorData = await response.json(); // 解析错误信息
+    throw new Error(errorData.error); // 抛出后端返回的具体错误描述
+  }
   return response.json();
 };
 
@@ -30,13 +40,6 @@ const fetchComments = async (postId, page = 1, pageSize = 10) => {
   }
   return response.json();
 }
-
-const loading = ref({
-  post: false,
-  comments: false
-})
-
-const error = ref({});
 
 const newComment = ref({
   Content: '',
@@ -81,14 +84,26 @@ const comments = ref({
 // 加载帖子内容
 const loadPost = async () => {
   try {
+    postOK.value = false
+    postNotFound.value = false
+    postDeleted.value = false
     loading.value.post = true
     post.value = await fetchPost(route.params.id)
+    postOK.value = true
   } catch (err) {
-    handleError(err)
+    postOK.value = false
+    if (err.message === 'post not found') {
+      postNotFound.value = true
+    } else if (err.message === 'post deleted') {
+      postDeleted.value = true
+    } else {
+      handleError(err)
+    }
   } finally {
     loading.value.post = false
   }
 }
+
 
 // 加载评论
 const loadComments = async (page = comments.value.currentPage) => {
@@ -235,13 +250,35 @@ const like = async (PostID, CommentID, Type) => {
   }
 }
 
+//删帖
+const deletePost = async (PostID) => {
+  try {
+    const response = await fetch(`/api/posts/delete`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({
+        PostID: PostID,
+      })
+    })
+    if (!response.ok) throw new Error('删除失败')
+    window.location.reload()
+  } catch (error) {
+    console.error('删除失败:', error)
+  }
+}
+
 // 初始化加载
 watch(
   () => route.params.id,
   (newId) => {
     if (newId) {
       loadPost()
-      loadComments(comments.value.currentPage)
+      if (postOK.value){
+        loadComments(comments.value.currentPage)
+      }
     }
   },
   {immediate: true}
@@ -263,7 +300,7 @@ watch(
 
 <template>
   <div class="container mt-3">
-    <div class="row g-4">
+    <div class="row g-4" v-if="postOK">
       <!-- 主内容区 -->
       <div class="col-md-8">
         <!-- 面包屑导航 -->
@@ -278,16 +315,23 @@ watch(
         <!-- 帖子主体 -->
         <article class="card mb-4" v-if="!loading.post">
           <div class="card-body">
-            <h1 class="mb-3">{{ post.Title }}</h1>
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <h1 class="mb-3">{{ post.Title }}</h1>
+              <button class="btn btn-sm btn-outline-secondary badge bg-success ms-auto"
+                      @click="like(post.PostID, null,'Post')">
+                点赞 +{{ post.Likes || 0 }}
+              </button>
+            </div>
             <div class="d-flex gap-2 text-muted mb-3">
               <span>作者：{{ post.Author }}</span>
               <span>•</span>
               <span>浏览：{{ post.Views }}</span>
               <span>•</span>
               <span>评论：{{ post.Comments }}</span>
-              <button class="btn btn-sm btn-outline-secondary badge bg-success"
-                      @click="like(post.PostID, null,'Post')">
-                点赞 +{{ post.Likes || 0 }}
+              <button v-if="post.AuthorID === userId"
+                      class="btn btn-sm btn-outline-danger ms-auto"
+                      @click="deletePost(post.PostID)">
+                删除
               </button>
             </div>
             <hr>
@@ -327,7 +371,7 @@ watch(
                       回复
                     </button>
                     <button class="btn btn-sm btn-outline-secondary"
-                            @click="like(post.PostID,comment.CommentID,'Comment')">点赞
+                            @click="like(comment.CommentID,'Comment')">点赞
                     </button>
                   </div>
                 </div>
@@ -428,6 +472,14 @@ watch(
         </div>
       </div>
 
+    </div>
+    <div v-if="postNotFound" class="col-12 d-flex justify-content-center align-items-center"
+         style="height: 70vh;">
+      <h3 class="text-muted">无效的帖子ID</h3>
+    </div>
+    <div v-if="postDeleted" class="col-12 d-flex justify-content-center align-items-center"
+         style="height: 70vh;">
+      <h3 class="text-muted">帖子已删除</h3>
     </div>
   </div>
 </template>
