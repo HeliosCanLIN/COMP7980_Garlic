@@ -6,14 +6,24 @@ const route = useRoute()
 const router = useRouter()
 
 const fetchPost = async (postId) => {
-  const response = await fetch(`/api/posts/${postId}`);
+  const response = await fetch(`/api/posts/${postId}`,{
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    },
+  });
   if (!response.ok) throw new Error('post not found');
   return response.json();
 };
 
 const fetchComments = async (postId, page = 1, pageSize = 10) => {
   const response = await fetch(
-    `/api/posts/${postId}/comments?page=${page}&pageSize=${pageSize}`
+    `/api/posts/${postId}/comments?page=${page}&pageSize=${pageSize}`,{
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+    }
   )
   if (!response.ok) {
     throw new Error(`加载评论失败: ${response.statusText}`)
