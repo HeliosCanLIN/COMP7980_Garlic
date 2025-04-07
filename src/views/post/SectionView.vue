@@ -3,7 +3,13 @@ import {ref, onMounted} from 'vue';
 import {useRoute, useRouter} from "vue-router";
 const route = useRoute();
 const router = useRouter();
-const section = route.query.section || 'XJP';
+const section =ref(route.query.section || 'XJP') ;
+const title=ref("");
+if(section.value=="XJP"){
+  title.value="小熊维尼";
+}else{
+  title.value="321";
+}
 
 
 const loading = ref(false);
@@ -32,7 +38,7 @@ onMounted(async ()=>{
 
 <template>
   <div class="container mt-5">
-    <h1 class="text-center mb-4">帖子列表</h1>
+    <h1 class="text-center mb-4">{{title}}-帖子列表</h1>
     <div >
       <div v-if="posts.length === 0" class="text-center">
         <p>暂无帖子。</p>
@@ -42,13 +48,18 @@ onMounted(async ()=>{
           <div class="card mb-3">
             <div class="card-body">
               <h5 class="card-title">{{ post.Title }}</h5>
-              <button class="btn btn-primary btn-sm" @click.prevent="showDetail(post._id)">查看详情</button>
+              <button class="btn btn-secondary btn-sm" @click.prevent="showDetail(post._id)">查看详情</button>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+  <footer>
+    <div class="text-center mb-4">
+      <button class="btn btn-info" >New Post</button>
+    </div>
+  </footer>
 </template>
 
 

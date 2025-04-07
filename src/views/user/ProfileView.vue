@@ -11,9 +11,10 @@ onMounted(()=>{
 
 const deleteAccount =async () => {
   let id=localStorage.getItem("id");
+  let token=localStorage.getItem("token");
   const response=await fetch('/api/users/deleteAcc/',{
     method:'POST',
-    headers:{"Content-Type":"application/json"},
+    headers:{"Content-Type":"application/json",  "authorization": `Bearer ${token}`},
     body:JSON.stringify({id:id})
   })
 

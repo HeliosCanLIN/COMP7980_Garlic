@@ -49,10 +49,10 @@ const submitChangePassword =  async () => {
     submitInfo.value.password=CryptoJS.MD5(userInfo.value.newPassword).toString();
     submitInfo.value.username=userInfo.value.username.toString();
     submitInfo.value.id=userInfo.value.id.toString();
-
+    const token=localStorage.getItem("token");
     const response = await fetch('api/users/changePassword/', {
       method:'POST',
-      headers:{"Content-Type":"application/json"},
+      headers:{"Content-Type":"application/json",  "authorization": `Bearer ${token}`},
       body:JSON.stringify(submitInfo.value)
     });
     const data = await response.json();
