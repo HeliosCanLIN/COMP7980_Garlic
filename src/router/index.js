@@ -52,10 +52,23 @@ const router = createRouter({
       }),
     },
     {
+      path: '/createpost',
+      name: 'createpost',
+
+      component: () => import('../views/post/CreatePost.vue'),
+
+    },
+    {
       path: '/Error',
       name: 'Error',
 
       component: () => import('../views/Error/RouterError.vue'),
+    },
+    {
+      path:'/Section',
+      name: 'Section',
+
+      component: () => import('../views/post/SectionView.vue'),
     }
   ],
 })

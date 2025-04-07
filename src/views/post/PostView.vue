@@ -5,15 +5,35 @@ import {useRoute, useRouter} from 'vue-router'
 const route = useRoute()
 const router = useRouter()
 
+const postOK = ref(false)
+const postNotFound = ref(false)
+const postDeleted = ref(false)
+const loading = ref({ post: false, comments: false })
+const error = ref({})
+const userId = ref(localStorage.getItem('id')); // 获取当前用户ID
+
 const fetchPost = async (postId) => {
-  const response = await fetch(`/api/posts/${postId}`);
-  if (!response.ok) throw new Error('post not found');
+  const response = await fetch(`/api/posts/${postId}`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    },
+  });
+  if (!response.ok) {                // 响应非 200 时处理错误
+    const errorData = await response.json(); // 解析错误信息
+    throw new Error(errorData.error); // 抛出后端返回的具体错误描述
+  }
   return response.json();
 };
 
 const fetchComments = async (postId, page = 1, pageSize = 10) => {
   const response = await fetch(
-    `/api/posts/${postId}/comments?page=${page}&pageSize=${pageSize}`
+    `/api/posts/${postId}/comments?page=${page}&pageSize=${pageSize}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+    }
   )
   if (!response.ok) {
     throw new Error(`加载评论失败: ${response.statusText}`)
@@ -21,17 +41,11 @@ const fetchComments = async (postId, page = 1, pageSize = 10) => {
   return response.json();
 }
 
-const loading = ref({
-  post: false,
-  comments: false
-})
-
-const error = ref({});
-
 const newComment = ref({
-  content: '',
+  Content: '',
   replyTo: null, // 回复目标：null为主贴，数字为评论ID
-  replyingToUser: null // 被回复的用户名
+  replyToUserID: null, // 被回复的用户名
+  UserID: localStorage.getItem("id"),
 })
 
 const activeReplyId = ref(null) // 当前正在回复的评论ID
@@ -70,14 +84,26 @@ const comments = ref({
 // 加载帖子内容
 const loadPost = async () => {
   try {
+    postOK.value = false
+    postNotFound.value = false
+    postDeleted.value = false
     loading.value.post = true
     post.value = await fetchPost(route.params.id)
+    postOK.value = true
   } catch (err) {
-    handleError(err)
+    postOK.value = false
+    if (err.message === 'post not found') {
+      postNotFound.value = true
+    } else if (err.message === 'post deleted') {
+      postDeleted.value = true
+    } else {
+      handleError(err)
+    }
   } finally {
     loading.value.post = false
   }
 }
+
 
 // 加载评论
 const loadComments = async (page = comments.value.currentPage) => {
@@ -105,7 +131,6 @@ const handleError = (error) => {
     code: error.code || 500
   }
 }
-
 
 // 页码改变处理器
 const handlePageChange = (newPage) => {
@@ -144,6 +169,106 @@ const visiblePages = computed(() => {
   return pages
 })
 
+// 处理回复按钮点击
+const handleReply = (commentId, userId, userName) => {
+  newComment.value.UserName = userName
+  newComment.value.replyTo = commentId
+  newComment.value.replyToUserID = userId
+  activeReplyId.value = commentId
+  // 滚动到回复框
+  document.querySelector('#comment-form')?.scrollIntoView({behavior: 'smooth'})
+}
+
+// 取消回复
+const cancelReply = () => {
+  newComment.value = {
+    Content: '',
+    replyTo: null,
+    replyToUser: null,
+    UserID: localStorage.getItem("id"),
+  }
+  activeReplyId.value = null
+}
+
+// 提交评论
+const submitComment = async () => {
+  if (!newComment.value.Content.trim()) return
+
+  try {
+    console.log(newComment.value)
+    const response = await fetch(`/api/posts/${route.params.id}/comments`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify(newComment.value)
+    })
+
+    if (!response.ok) throw new Error('提交失败')
+
+    // 重新加载评论列表（简单实现）
+    await loadComments(comments.value.currentPage)
+
+    // 清空表单
+    cancelReply()
+
+  } catch (error) {
+    console.error('提交评论失败:', error)
+  }
+}
+
+// 点赞
+const like = async (PostID, CommentID, Type) => {
+  try {
+    const response = await fetch(`/api/like/add`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({
+        UserID: localStorage.getItem('id'),
+        PostID: PostID,
+        CommentID: CommentID,
+        Type: Type,
+      })
+    })
+
+    if (!response.ok) throw new Error('点赞失败')
+
+    // 重新加载评论列表（简单实现）
+    if (Type == 'Post') {
+      await loadPost()
+    }
+    if (Type == 'Comment') {
+      await loadComments(comments.value.currentPage)
+    }
+
+  } catch (error) {
+    console.error('点赞失败:', error)
+  }
+}
+
+//删帖
+const deletePost = async (PostID) => {
+  try {
+    const response = await fetch(`/api/posts/delete`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({
+        PostID: PostID,
+      })
+    })
+    if (!response.ok) throw new Error('删除失败')
+    window.location.reload()
+  } catch (error) {
+    console.error('删除失败:', error)
+  }
+}
 
 // 初始化加载
 watch(
@@ -151,7 +276,9 @@ watch(
   (newId) => {
     if (newId) {
       loadPost()
-      loadComments(comments.value.currentPage)
+      if (postOK.value){
+        loadComments(comments.value.currentPage)
+      }
     }
   },
   {immediate: true}
@@ -169,70 +296,18 @@ watch(
   },
   {immediate: true}
 )
-
-// 获取回复目标用户名
-const getReplyTarget = (commentId) => {
-  const target = comments.value.find(c => c.id === commentId)
-  return target ? target.user : '未知用户'
-}
-
-// 处理回复按钮点击
-const handleReply = (commentId, username) => {
-  newComment.value.replyTo = commentId
-  newComment.value.replyingToUser = username
-  activeReplyId.value = commentId
-  // 滚动到回复框
-  document.querySelector('#comment-form')?.scrollIntoView({behavior: 'smooth'})
-}
-
-// 取消回复
-const cancelReply = () => {
-  newComment.value = {
-    content: '',
-    replyTo: null,
-    replyingToUser: null
-  }
-  activeReplyId.value = null
-}
-
-// 提交评论
-const submitComment = async () => {
-  if (!newComment.value.content.trim()) return
-
-  try {
-    const commentData = {
-      id: Date.now(),
-      user: '当前用户', // 实际应从用户系统获取
-      time: '刚刚',
-      content: newComment.value.content,
-      likes: 0,
-      replyTo: newComment.value.replyTo
-    }
-
-    // 实际应调用API提交
-    comments.value.unshift(commentData)
-
-    // 更新主贴评论数
-    post.value.comments++
-
-    cancelReply()
-  } catch (error) {
-    console.error('提交评论失败:', error)
-  }
-}
-
 </script>
 
 <template>
   <div class="container mt-3">
-    <div class="row g-4">
+    <div class="row g-4" v-if="postOK">
       <!-- 主内容区 -->
       <div class="col-md-8">
         <!-- 面包屑导航 -->
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="#">论坛首页</a></li>
-            <li class="breadcrumb-item"><a href="#">科技板块</a></li>
+            <li class="breadcrumb-item"><a href="/">论坛首页</a></li>
+            <li class="breadcrumb-item"><a href="#">{{ post.Section }}</a></li>
             <li class="breadcrumb-item active" aria-current="page">当前帖子</li>
           </ol>
         </nav>
@@ -240,13 +315,24 @@ const submitComment = async () => {
         <!-- 帖子主体 -->
         <article class="card mb-4" v-if="!loading.post">
           <div class="card-body">
-            <h1 class="mb-3">{{ post.Title }}</h1>
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <h1 class="mb-3">{{ post.Title }}</h1>
+              <button class="btn btn-sm btn-outline-secondary badge bg-success ms-auto"
+                      @click="like(post.PostID, null,'Post')">
+                点赞 +{{ post.Likes || 0 }}
+              </button>
+            </div>
             <div class="d-flex gap-2 text-muted mb-3">
               <span>作者：{{ post.Author }}</span>
               <span>•</span>
               <span>浏览：{{ post.Views }}</span>
               <span>•</span>
               <span>评论：{{ post.Comments }}</span>
+              <button v-if="post.AuthorID === userId"
+                      class="btn btn-sm btn-outline-danger ms-auto"
+                      @click="deletePost(post.PostID)">
+                删除
+              </button>
             </div>
             <hr>
             <div class="post-body">
@@ -274,16 +360,19 @@ const submitComment = async () => {
                     <span class="badge bg-success ms-auto">+{{ comment.Likes }}</span>
                   </div>
                   <!-- 显示回复对象 -->
-                  <div v-if="comment.replyTo" class="text-muted mb-2 small">
-                    回复 @{{ getReplyTarget(comment.replyTo) }}
+                  <div v-if="comment.ReplyToUserID != null" class="text-muted mb-2 small">
+                    <!--                    回复 @{{ getReplyTarget(comment.replyTo) }}-->
+                    回复 @{{ comment.ReplyToUserName }}
                   </div>
                   <p class="mb-2">{{ comment.Content }}</p>
                   <div class="btn-group">
                     <button class="btn btn-sm btn-outline-secondary"
-                            @click="handleReply(comment.CommentID, comment.UserName)">回复
+                            @click="handleReply(comment.CommentID, comment.UserID,comment.UserName)">
+                      回复
                     </button>
-                    <button class="btn btn-sm btn-outline-secondary">点赞</button>
-                    <button class="btn btn-sm btn-outline-danger">没有</button>
+                    <button class="btn btn-sm btn-outline-secondary"
+                            @click="like(comment.CommentID,'Comment')">点赞
+                    </button>
                   </div>
                 </div>
               </div>
@@ -323,12 +412,12 @@ const submitComment = async () => {
         <div class="card">
           <div class="card-body">
             <h4 class="card-title mb-3">
-              {{ newComment.replyingToUser ? `回复 @${newComment.replyingToUser}` : '发表回复' }}
-              <button v-if="newComment.replyingToUser" class="btn btn-danger" @click="cancelReply">
+              {{ newComment.UserName ? `回复 @${newComment.UserName}` : '发表回复' }}
+              <button v-if="newComment.replyToUser" class="btn btn-danger" @click="cancelReply">
                 取消
               </button>
             </h4>
-            <textarea v-model="newComment.content" class="form-control mb-3" rows="4"
+            <textarea v-model="newComment.Content" class="form-control mb-3" rows="4"
                       placeholder="请输入您的回复内容..."></textarea>
             <div class="d-flex gap-2">
               <button class="btn btn-primary" @click="submitComment">发送</button>
@@ -383,6 +472,14 @@ const submitComment = async () => {
         </div>
       </div>
 
+    </div>
+    <div v-if="postNotFound" class="col-12 d-flex justify-content-center align-items-center"
+         style="height: 70vh;">
+      <h3 class="text-muted">无效的帖子ID</h3>
+    </div>
+    <div v-if="postDeleted" class="col-12 d-flex justify-content-center align-items-center"
+         style="height: 70vh;">
+      <h3 class="text-muted">帖子已删除</h3>
     </div>
   </div>
 </template>

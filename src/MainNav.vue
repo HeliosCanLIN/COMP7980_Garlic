@@ -8,6 +8,17 @@ const router = useRouter();
 const UserLogined = ref(false);
 const UserName = ref("");
 
+const navBar = ref([
+  { key: "小熊维尼", value: "Winnie" },
+  { key: "跳跳虎", value: "Piglet" },
+  { key: "小豬", value: "Tigger" },
+  { key: "屹耳", value: "Eeyore" },
+  { key: "瑞比", value: "Rabbit" },
+  { key: "小荳", value: "Roo" },
+  { key: "貓頭鷹", value: "Owl" },
+  { key: "嘟嘟", value: "Lumpy" }
+]);
+
 const logOut = async function (){
   localStorage.removeItem("token");
   localStorage.removeItem("username");
@@ -43,6 +54,13 @@ onMounted(async () => {
   }
 });
 
+const goSection=async (section,title)=>{
+  await router.replace({
+    path:'/Section',
+    query:{section:section,title:title}
+  });
+}
+
 </script>
 <template>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -65,33 +83,19 @@ onMounted(async () => {
     <!-- 中间导航菜单 -->
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav me-auto">
-        <li class="nav-item">
-          <a class="nav-link active" href="#">小熊维尼</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">跳跳虎</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">玲娜贝尔</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">星黛露</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">杰拉多尼</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">可琦安</a>
+        <li class="nav-item" v-for="item in navBar" :key="item.value">
+          <a class="nav-link" @click="goSection(item.value,item.key)">{{ item.key }}</a>
         </li>
       </ul>
+
 
       <!-- 右侧按钮 -->
       <div class="d-flex" v-if="!UserLogined">
         <RouterLink to="/SignIn">
-          <button class="btn btn-outline-light me-2"> 登录</button>
+          <button class="btn btn-outline-light me-2"> SIGN IN </button>
         </RouterLink>
         <RouterLink to="/SignUp">
-          <button class="btn btn-success">注册</button>
+          <button class="btn btn-success"> SIGN UP</button>
         </RouterLink>
       </div>
       <div v-else class="dropdown">
