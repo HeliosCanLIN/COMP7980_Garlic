@@ -203,8 +203,7 @@ const submitComment = async () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        // 实际需要添加认证头，如：
-        // 'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
       },
       body: JSON.stringify(newComment.value)
     })
@@ -219,6 +218,32 @@ const submitComment = async () => {
 
   } catch (error) {
     console.error('提交评论失败:', error)
+  }
+}
+
+// 点赞
+const like = async (targetID,targetType) => {
+  try {
+    const response = await fetch(`/api/like/add`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({
+        UserId: localStorage.getItem('id'),
+        TargetID: targetID,
+        TargetType: targetType,
+      })
+    })
+
+    if (!response.ok) throw new Error('点赞失败')
+
+    // 重新加载评论列表（简单实现）
+    await loadComments(comments.value.currentPage)
+
+  } catch (error) {
+    console.error('点赞失败:', error)
   }
 }
 
@@ -248,6 +273,10 @@ const submitComment = async () => {
               <span>浏览：{{ post.Views }}</span>
               <span>•</span>
               <span>评论：{{ post.Comments }}</span>
+              <button class="btn btn-sm btn-outline-secondary badge bg-success"
+                      @click="like(post.PostID, 'Post')">
+                点赞 +{{ post.Likes || 0 }}
+              </button>
             </div>
             <hr>
             <div class="post-body">
@@ -284,8 +313,7 @@ const submitComment = async () => {
                     <button class="btn btn-sm btn-outline-secondary"
                             @click="handleReply(comment.CommentID, comment.UserID,comment.UserName)">回复
                     </button>
-                    <button class="btn btn-sm btn-outline-secondary">点赞</button>
-                    <button class="btn btn-sm btn-outline-danger">没有</button>
+                    <button class="btn btn-sm btn-outline-secondary" @click="like(comment.CommentID,'Comment')">点赞</button>
                   </div>
                 </div>
               </div>
