@@ -8,6 +8,17 @@ const router = useRouter();
 const UserLogined = ref(false);
 const UserName = ref("");
 
+const navBar = ref([
+  { key: "小熊维尼", value: "Winnie" },
+  { key: "跳跳虎", value: "Piglet" },
+  { key: "小豬", value: "Tigger" },
+  { key: "屹耳", value: "Eeyore" },
+  { key: "瑞比", value: "Rabbit" },
+  { key: "小荳", value: "Roo" },
+  { key: "貓頭鷹", value: "Owl" },
+  { key: "嘟嘟", value: "Lumpy" }
+]);
+
 const logOut = async function (){
   localStorage.removeItem("token");
   localStorage.removeItem("username");
@@ -43,24 +54,13 @@ onMounted(async () => {
   }
 });
 
-const goSection1=async ()=>{
+const goSection=async (section,title)=>{
   await router.replace({
     path:'/Section',
-    query:{section:"XJP"}
+    query:{section:section,title:title}
   });
 }
-const goSection2=async ()=>{
-  await router.replace({
-    path:'/Section',
-    query:{section:"Tech"}
-  });
-}
-const goSection3=async ()=>{
-  await router.replace({
-    path:'/Section',
-    query:{section:"Living"}
-  });
-}
+
 </script>
 <template>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -83,16 +83,11 @@ const goSection3=async ()=>{
     <!-- 中间导航菜单 -->
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav me-auto">
-        <li class="nav-item">
-          <a class="nav-link" @click="goSection1">小熊维尼</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" @click="goSection2">跳跳虎</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" @click="goSection3">玲娜贝尔</a>
+        <li class="nav-item" v-for="item in navBar" :key="item.value">
+          <a class="nav-link" @click="goSection(item.value,item.key)">{{ item.key }}</a>
         </li>
       </ul>
+
 
       <!-- 右侧按钮 -->
       <div class="d-flex" v-if="!UserLogined">

@@ -3,13 +3,13 @@ import {ref, onMounted} from 'vue';
 import {useRoute, useRouter} from "vue-router";
 const route = useRoute();
 const router = useRouter();
-const section =ref(route.query.section || 'XJP') ;
-const title=ref("");
-if(section.value=="XJP"){
-  title.value="小熊维尼";
-}else{
-  title.value="321";
-}
+
+
+
+const section =ref(route.query.section || 'Winnie') ;
+
+const title=ref(route.query.title || '小熊维尼');
+
 
 
 const loading = ref(false);
@@ -24,7 +24,7 @@ onMounted(async ()=>{
   loading.value=true;
   const response = await fetch('/api/posts/getLists/',{
     method:'POST',
-    headers:{"Content-Type":"application/json"},
+    headers:{"Content-Type":"application/json",'Authorization': `Bearer ${localStorage.getItem('token')}`},
     body:JSON.stringify({section:section})
   });
   if (!response.ok) throw new Error('post not found');
