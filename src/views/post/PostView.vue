@@ -29,9 +29,10 @@ const loading = ref({
 const error = ref({});
 
 const newComment = ref({
-  content: '',
+  Content: '',
   replyTo: null, // 回复目标：null为主贴，数字为评论ID
-  replyingToUser: null // 被回复的用户名
+  replyToUserID: null, // 被回复的用户名
+  UserID:localStorage.getItem("id"),
 })
 
 const activeReplyId = ref(null) // 当前正在回复的评论ID
@@ -177,9 +178,10 @@ const getReplyTarget = (commentId) => {
 }
 
 // 处理回复按钮点击
-const handleReply = (commentId, username) => {
+const handleReply = (commentId, userId, userName) => {
+  newComment.value.UserName = userName
   newComment.value.replyTo = commentId
-  newComment.value.replyingToUser = username
+  newComment.value.replyToUserID = userId
   activeReplyId.value = commentId
   // 滚动到回复框
   document.querySelector('#comment-form')?.scrollIntoView({behavior: 'smooth'})
@@ -188,34 +190,38 @@ const handleReply = (commentId, username) => {
 // 取消回复
 const cancelReply = () => {
   newComment.value = {
-    content: '',
+    Content: '',
     replyTo: null,
-    replyingToUser: null
+    replyToUser: null,
+    UserID:localStorage.getItem("id"),
   }
   activeReplyId.value = null
 }
 
 // 提交评论
 const submitComment = async () => {
-  if (!newComment.value.content.trim()) return
+  if (!newComment.value.Content.trim()) return
 
   try {
-    const commentData = {
-      id: Date.now(),
-      user: '当前用户', // 实际应从用户系统获取
-      time: '刚刚',
-      content: newComment.value.content,
-      likes: 0,
-      replyTo: newComment.value.replyTo
-    }
+    console.log(newComment.value)
+    const response = await fetch(`/api/posts/${route.params.id}/comments`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // 实际需要添加认证头，如：
+        // 'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(newComment.value)
+    })
 
-    // 实际应调用API提交
-    comments.value.unshift(commentData)
+    if (!response.ok) throw new Error('提交失败')
 
-    // 更新主贴评论数
-    post.value.comments++
+    // 重新加载评论列表（简单实现）
+    await loadComments(comments.value.currentPage)
 
+    // 清空表单
     cancelReply()
+
   } catch (error) {
     console.error('提交评论失败:', error)
   }
@@ -274,13 +280,14 @@ const submitComment = async () => {
                     <span class="badge bg-success ms-auto">+{{ comment.Likes }}</span>
                   </div>
                   <!-- 显示回复对象 -->
-                  <div v-if="comment.replyTo" class="text-muted mb-2 small">
-                    回复 @{{ getReplyTarget(comment.replyTo) }}
+                  <div v-if="comment.ReplyToUserID != null" class="text-muted mb-2 small">
+<!--                    回复 @{{ getReplyTarget(comment.replyTo) }}-->
+                    回复 @{{comment.ReplyToUserName}}
                   </div>
                   <p class="mb-2">{{ comment.Content }}</p>
                   <div class="btn-group">
                     <button class="btn btn-sm btn-outline-secondary"
-                            @click="handleReply(comment.CommentID, comment.UserName)">回复
+                            @click="handleReply(comment.CommentID, comment.UserID,comment.UserName)">回复
                     </button>
                     <button class="btn btn-sm btn-outline-secondary">点赞</button>
                     <button class="btn btn-sm btn-outline-danger">没有</button>
@@ -323,12 +330,12 @@ const submitComment = async () => {
         <div class="card">
           <div class="card-body">
             <h4 class="card-title mb-3">
-              {{ newComment.replyingToUser ? `回复 @${newComment.replyingToUser}` : '发表回复' }}
-              <button v-if="newComment.replyingToUser" class="btn btn-danger" @click="cancelReply">
+              {{ newComment.UserName ? `回复 @${newComment.UserName}` : '发表回复' }}
+              <button v-if="newComment.replyToUser" class="btn btn-danger" @click="cancelReply">
                 取消
               </button>
             </h4>
-            <textarea v-model="newComment.content" class="form-control mb-3" rows="4"
+            <textarea v-model="newComment.Content" class="form-control mb-3" rows="4"
                       placeholder="请输入您的回复内容..."></textarea>
             <div class="d-flex gap-2">
               <button class="btn btn-primary" @click="submitComment">发送</button>
