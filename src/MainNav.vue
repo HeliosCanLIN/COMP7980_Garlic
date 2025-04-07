@@ -43,6 +43,24 @@ onMounted(async () => {
   }
 });
 
+const goSection1=async ()=>{
+  await router.replace({
+    path:'/Section',
+    query:{section:"XJP"}
+  });
+}
+const goSection2=async ()=>{
+  await router.replace({
+    path:'/Section',
+    query:{section:"Tech"}
+  });
+}
+const goSection3=async ()=>{
+  await router.replace({
+    path:'/Section',
+    query:{section:"Living"}
+  });
+}
 </script>
 <template>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -66,22 +84,13 @@ onMounted(async () => {
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav me-auto">
         <li class="nav-item">
-          <a class="nav-link active" href="#">小熊维尼</a>
+          <a class="nav-link" @click="goSection1">小熊维尼</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">跳跳虎</a>
+          <a class="nav-link" @click="goSection2">跳跳虎</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">玲娜贝尔</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">星黛露</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">杰拉多尼</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">可琦安</a>
+          <a class="nav-link" @click="goSection3">玲娜贝尔</a>
         </li>
       </ul>
 

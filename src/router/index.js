@@ -56,6 +56,12 @@ const router = createRouter({
       name: 'Error',
 
       component: () => import('../views/Error/RouterError.vue'),
+    },
+    {
+      path:'/Section',
+      name: 'Section',
+
+      component: () => import('../views/post/SectionView.vue'),
     }
   ],
 })
