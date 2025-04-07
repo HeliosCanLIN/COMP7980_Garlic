@@ -52,6 +52,13 @@ const router = createRouter({
       }),
     },
     {
+      path: '/createpost',
+      name: 'createpost',
+
+      component: () => import('../views/post/CreatePost.vue'),
+
+    },
+    {
       path: '/Error',
       name: 'Error',
 
