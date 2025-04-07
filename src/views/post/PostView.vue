@@ -171,11 +171,6 @@ watch(
   {immediate: true}
 )
 
-// 获取回复目标用户名
-const getReplyTarget = (commentId) => {
-  const target = comments.value.find(c => c.id === commentId)
-  return target ? target.user : '未知用户'
-}
 
 // 处理回复按钮点击
 const handleReply = (commentId, userId, userName) => {
@@ -237,8 +232,8 @@ const submitComment = async () => {
         <!-- 面包屑导航 -->
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="#">论坛首页</a></li>
-            <li class="breadcrumb-item"><a href="#">科技板块</a></li>
+            <li class="breadcrumb-item"><a href="/">论坛首页</a></li>
+            <li class="breadcrumb-item"><a href="#">{{ post.Section }}</a></li>
             <li class="breadcrumb-item active" aria-current="page">当前帖子</li>
           </ol>
         </nav>
