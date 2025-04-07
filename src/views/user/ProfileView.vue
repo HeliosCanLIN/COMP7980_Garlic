@@ -1,11 +1,33 @@
 <script setup>
 import {ref,onMounted} from "vue";
+import {useRouter} from "vue-router";
 
+const router = useRouter();
 const username = ref('');
 
 onMounted(()=>{
   username.value=localStorage.getItem('username');
 })
+
+const deleteAccount =async () => {
+  let id=localStorage.getItem("id");
+  const response=await fetch('/api/users/deleteAcc/',{
+    method:'POST',
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({id:id})
+  })
+
+  if(response.ok){
+    alert("Delete successfully.See ya")
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    localStorage.removeItem("id");
+    await router.push('/');
+    location.reload();
+  }else{
+    alert("Account delete failed, please try later");
+  }
+}
 </script>
 
 <template>
@@ -62,6 +84,9 @@ onMounted(()=>{
       </div>
     </div>
   </div>
+    <div class="text-center" style="margin: 20px">
+      <button class="btn btn-danger" @click="deleteAccount" >DELETE ACCOUNT</button>
+    </div>
   </div>
 </div>
 </template>
