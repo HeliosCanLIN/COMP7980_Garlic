@@ -213,7 +213,7 @@ const like = async (PostID, CommentID, Type) => {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       },
       body: JSON.stringify({
-        UserId: localStorage.getItem('id'),
+        UserID: localStorage.getItem('id'),
         PostID: PostID,
         CommentID: CommentID,
         Type: Type,

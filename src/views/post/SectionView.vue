@@ -25,7 +25,7 @@ onMounted(async ()=>{
   const response = await fetch('/api/posts/getLists/',{
     method:'POST',
     headers:{"Content-Type":"application/json",'Authorization': `Bearer ${localStorage.getItem('token')}`},
-    body:JSON.stringify({section:section})
+    body:JSON.stringify({section:section.value})
   });
   if (!response.ok) throw new Error('post not found');
 
@@ -48,7 +48,7 @@ onMounted(async ()=>{
           <div class="card mb-3">
             <div class="card-body">
               <h5 class="card-title">{{ post.Title }}</h5>
-              <button class="btn btn-secondary btn-sm" @click.prevent="showDetail(post._id)">View Details</button>
+              <button class="btn btn-secondary btn-sm" @click.prevent="showDetail(post.PostID)">View Details</button>
             </div>
           </div>
         </div>
