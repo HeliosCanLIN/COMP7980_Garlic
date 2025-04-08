@@ -9,6 +9,7 @@ const router = useRouter();
 const section = ref(route.query.section || 'Winnie');
 const loading = ref(false);
 const posts = ref([]);
+const searchKeyword=ref({});
 
 const showDetail = async (_id) => {
   await router.replace('/post/' + _id);
@@ -19,7 +20,7 @@ const createNewPost = async () => {
 }
 
 onMounted(async () => {
-
+  searchKeyword.value=null;
   const id=localStorage.getItem("id");
   if(id==null){
     await router.replace({
@@ -41,6 +42,21 @@ onMounted(async () => {
   posts.value = await response.json();
   loading.value = false;
 })
+
+const search= async ()=>{
+  loading.value = true;
+  const response = await fetch('/api/posts/getLists/', {
+    method: 'POST',
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${localStorage.getItem('token')}`
+    },
+    body: JSON.stringify({section: section.value,keyword:searchKeyword.value})
+  });
+  if (!response.ok) throw new Error('Post not found');
+  posts.value = await response.json();
+  loading.value = false;
+}
 </script>
 
 <template>
@@ -56,6 +72,10 @@ onMounted(async () => {
               :href="`/Section?section=${section}`">{{ section }}</a></li>
           </ol>
         </nav>
+        <form class="d-flex mb-4">
+          <input class="form-control" type="search" v-model="searchKeyword" placeholder="Search what you want" aria-label="Search what you want">
+          <button class="btn btn-outline-primary" type="submit" @click.prevent="search">SEARCH</button>
+        </form>
 
         <!-- Section Header -->
         <div class="d-flex justify-content-between align-items-center mb-4">
