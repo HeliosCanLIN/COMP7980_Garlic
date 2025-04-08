@@ -69,6 +69,12 @@ const router = createRouter({
       name: 'Section',
 
       component: () => import('../views/post/SectionView.vue'),
+    },
+    {
+      path:'/ForumHelp',
+      name:'/ForumHelp',
+
+      component: () => import('../views/ForumHelpView.vue'),
     }
   ],
 })
