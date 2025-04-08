@@ -374,7 +374,7 @@ watch(
                       Reply
                     </button>
                     <button class="btn btn-sm btn-outline-secondary"
-                            @click="like(comment.CommentID,'Comment')">
+                            @click="like(comment.PostID,comment.CommentID,'Comment')">
                       Like
                     </button>
                   </div>
