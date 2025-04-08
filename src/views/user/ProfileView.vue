@@ -9,7 +9,9 @@ const commentCount = ref(0);
 const likeCount = ref(0);
 const beLiked = ref(0);
 const options = ref({labels: ['Likes', 'Liked by']});
+const optionsPost = ref({labels: ['Post', 'Comments']});
 const series = ref({});
+const seriesPost = ref({});
 const pieTitle=ref("Distribution of Likes");
 
 onMounted(async () => {
@@ -34,6 +36,7 @@ onMounted(async () => {
     likeCount.value = data.likeCount;
     beLiked.value = data.beLiked;
     series.value = [likeCount.value, beLiked.value];
+    seriesPost.value = [postCount.value, commentCount.value];
     console.log(series);
     console.log(series.value);
   }
@@ -113,8 +116,9 @@ const deleteAccount = async () => {
       </div>
     </div>
     <div class="row">
-      <div id="chart">
-        <apexchart type="donut" :options="options" :series="series" :title="pieTitle" style="width: 300px" />
+      <div id="chart" class="text-center" style="display: flex;justify-content: center;">
+        <apexchart type="donut" :options="options" :series="series" :title="pieTitle" style="width: 250px" />
+        <apexchart type="donut" :options="optionsPost" :series="seriesPost" :title="pieTitle" style="width: 250px" />
       </div>
     </div>
   </div>
