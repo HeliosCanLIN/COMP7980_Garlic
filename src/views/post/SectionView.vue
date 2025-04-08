@@ -19,6 +19,15 @@ const createNewPost = async () => {
 }
 
 onMounted(async () => {
+
+  const id=localStorage.getItem("id");
+  if(id==null){
+    await router.replace({
+      path:'/Error',
+      query:{errorMessage:"Please log in first"}
+    });
+  }
+
   loading.value = true;
   const response = await fetch('/api/posts/getLists/', {
     method: 'POST',
