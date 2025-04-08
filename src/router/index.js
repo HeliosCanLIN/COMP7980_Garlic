@@ -55,7 +55,7 @@ const router = createRouter({
       path: '/createpost',
       name: 'createpost',
 
-      component: () => import('../views/post/CreatePost.vue'),
+      component: () => import('../views/post/CreatePostView.vue'),
 
     },
     {
@@ -69,6 +69,12 @@ const router = createRouter({
       name: 'Section',
 
       component: () => import('../views/post/SectionView.vue'),
+    },
+    {
+      path:'/ForumHelp',
+      name:'/ForumHelp',
+
+      component: () => import('../views/ForumHelpView.vue'),
     }
   ],
 })

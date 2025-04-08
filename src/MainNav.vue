@@ -9,14 +9,14 @@ const UserLogined = ref(false);
 const UserName = ref("");
 
 const navBar = ref([
-  { key: "小熊维尼", value: "Winnie" },
-  { key: "跳跳虎", value: "Piglet" },
-  { key: "小豬", value: "Tigger" },
-  { key: "屹耳", value: "Eeyore" },
-  { key: "瑞比", value: "Rabbit" },
-  { key: "小荳", value: "Roo" },
-  { key: "貓頭鷹", value: "Owl" },
-  { key: "嘟嘟", value: "Lumpy" }
+  { key: "Winnie", value: "Winnie" },//小熊维尼
+  { key: "Tigger", value: "Tigger" },//跳跳虎
+  { key: "Piglet", value: "Piglet" },//小猪
+  { key: "Eeyore", value: "Eeyore" },//屹耳
+  { key: "Rabbit", value: "Rabbit" },
+  { key: "Roo", value: "Roo" },
+  { key: "Owl", value: "Owl" },
+  { key: "Lumpy", value: "Lumpy" }
 ]);
 
 const logOut = async function (){
@@ -57,7 +57,7 @@ onMounted(async () => {
 const goSection=async (section,title)=>{
   await router.replace({
     path:'/Section',
-    query:{section:section,title:title}
+    query:{section:section}
   });
 }
 
