@@ -1,6 +1,7 @@
 <script setup>
 import {ref, watch, computed} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
+import SideBar from "@/components/SideBar.vue";
 
 const route = useRoute()
 const router = useRouter()
@@ -69,9 +70,9 @@ const comments = ref({
       "PostID": 1,
       "UserID": 1,
       "UserName": "测试工程师",
-      "time": "626天前",
+      "time": "刚刚",
       "CreatedAt": "2023-07-20 10:30",
-      "Content": "测试回复",
+      "Content": "测试内容",
       "Likes": 34,
       "id": "1"
     }
@@ -103,7 +104,6 @@ const loadPost = async () => {
     loading.value.post = false
   }
 }
-
 
 // 加载评论
 const loadComments = async (page = comments.value.currentPage) => {
@@ -270,19 +270,22 @@ const deletePost = async (PostID) => {
   }
 }
 
-// 初始化加载
-watch(
-  () => route.params.id,
-  (newId) => {
-    if (newId) {
-      loadPost()
-      if (postOK.value){
-        loadComments(comments.value.currentPage)
-      }
-    }
-  },
-  {immediate: true}
-)
+loadPost()
+loadComments(comments.value.currentPage)
+
+// // 初始化加载
+// watch(
+//   () => route.params.id,
+//   (newId) => {
+//     if (newId) {
+//       loadPost()
+//       if (postOK.value){
+//         loadComments(comments.value.currentPage)
+//       }
+//     }
+//   },
+//   {immediate: true}
+// )
 
 // 监听页码变化
 watch(
@@ -301,37 +304,39 @@ watch(
 <template>
   <div class="container mt-3">
     <div class="row g-4" v-if="postOK">
-      <!-- 主内容区 -->
+      <!-- Main Content -->
       <div class="col-md-8">
-        <!-- 面包屑导航 -->
+        <!-- Breadcrumb -->
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">论坛首页</a></li>
-            <li class="breadcrumb-item"><a href="#">{{ post.Section }}</a></li>
-            <li class="breadcrumb-item active" aria-current="page">当前帖子</li>
+            <li class="breadcrumb-item"><a href="/">Forum Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">
+              <a :href="`/Section?section=${post.Section}`">{{ post.Section }}</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">{{ post.Title }}</li>
           </ol>
         </nav>
 
-        <!-- 帖子主体 -->
+        <!-- Post Body -->
         <article class="card mb-4" v-if="!loading.post">
           <div class="card-body">
             <div class="d-flex align-items-center gap-2 mb-2">
               <h1 class="mb-3">{{ post.Title }}</h1>
               <button class="btn btn-sm btn-outline-secondary badge bg-success ms-auto"
                       @click="like(post.PostID, null,'Post')">
-                点赞 +{{ post.Likes || 0 }}
+                Like +{{ post.Likes || 0 }}
               </button>
             </div>
             <div class="d-flex gap-2 text-muted mb-3">
-              <span>作者：{{ post.Author }}</span>
+              <span>Author: {{ post.Author }}</span>
               <span>•</span>
-              <span>浏览：{{ post.Views }}</span>
+              <span>Views: {{ post.Views }}</span>
               <span>•</span>
-              <span>评论：{{ post.Comments }}</span>
+              <span>Comments: {{ post.Comments }}</span>
               <button v-if="post.AuthorID === userId"
                       class="btn btn-sm btn-outline-danger ms-auto"
                       @click="deletePost(post.PostID)">
-                删除
+                Delete
               </button>
             </div>
             <hr>
@@ -343,13 +348,13 @@ watch(
 
         <div v-if="loading.post" class="text-center my-3">
           <div class="spinner-border text-secondary" role="status">
-            <span class="visually-hidden">加载中...</span>
+            <span class="visually-hidden">Loading...</span>
           </div>
         </div>
 
-        <!-- 评论列表 -->
+        <!-- Comments Section -->
         <section class="mb-4" v-if="!loading.comments">
-          <h3 class="mb-3">评论（{{ comments.total }}）</h3>
+          <h3 class="mb-3">Comments ({{ comments.total }})</h3>
           <div v-for="comment in comments.data" :key="comment.id" class="card mb-3">
             <div class="card-body">
               <div class="d-flex gap-3">
@@ -359,19 +364,18 @@ watch(
                     <small class="text-muted">{{ comment.time }}</small>
                     <span class="badge bg-success ms-auto">+{{ comment.Likes }}</span>
                   </div>
-                  <!-- 显示回复对象 -->
                   <div v-if="comment.ReplyToUserID != null" class="text-muted mb-2 small">
-                    <!--                    回复 @{{ getReplyTarget(comment.replyTo) }}-->
-                    回复 @{{ comment.ReplyToUserName }}
+                    Reply to @{{ comment.ReplyToUserName }}
                   </div>
                   <p class="mb-2">{{ comment.Content }}</p>
                   <div class="btn-group">
                     <button class="btn btn-sm btn-outline-secondary"
                             @click="handleReply(comment.CommentID, comment.UserID,comment.UserName)">
-                      回复
+                      Reply
                     </button>
                     <button class="btn btn-sm btn-outline-secondary"
-                            @click="like(comment.CommentID,'Comment')">点赞
+                            @click="like(comment.CommentID,'Comment')">
+                      Like
                     </button>
                   </div>
                 </div>
@@ -382,16 +386,16 @@ watch(
 
         <div v-if="loading.comments" class="text-center my-3">
           <div class="spinner-border text-secondary" role="status">
-            <span class="visually-hidden">加载中...</span>
+            <span class="visually-hidden">Loading...</span>
           </div>
         </div>
 
-        <!-- 分页 -->
-        <nav v-if="comments.totalPages > 1" aria-label="评论分页">
+        <!-- Pagination -->
+        <nav v-if="comments.totalPages > 1" aria-label="Comments pagination">
           <ul class="pagination justify-content-center">
             <li class="page-item" :class="{ disabled: comments.currentPage === 1 }">
               <a class="page-link" href="#"
-                 @click.prevent="handlePageChange(comments.currentPage - 1)">上一页</a>
+                 @click.prevent="handlePageChange(comments.currentPage - 1)">Previous</a>
             </li>
 
             <template v-for="page in visiblePages" :key="page">
@@ -403,86 +407,44 @@ watch(
             <li class="page-item"
                 :class="{ disabled: comments.currentPage === comments.totalPages }">
               <a class="page-link" href="#"
-                 @click.prevent="handlePageChange(comments.currentPage + 1)">下一页</a>
+                 @click.prevent="handlePageChange(comments.currentPage + 1)">Next</a>
             </li>
           </ul>
         </nav>
 
-        <!-- 回复框 -->
+        <!-- Comment Form -->
         <div class="card">
           <div class="card-body">
             <h4 class="card-title mb-3">
-              {{ newComment.UserName ? `回复 @${newComment.UserName}` : '发表回复' }}
+              {{ newComment.UserName ? `Reply to @${newComment.UserName}` : 'Post a Reply' }}
               <button v-if="newComment.replyToUser" class="btn btn-danger" @click="cancelReply">
-                取消
+                Cancel
               </button>
             </h4>
             <textarea v-model="newComment.Content" class="form-control mb-3" rows="4"
-                      placeholder="请输入您的回复内容..."></textarea>
+                      placeholder="Please enter your reply..."></textarea>
             <div class="d-flex gap-2">
-              <button class="btn btn-primary" @click="submitComment">发送</button>
-              <button class="btn btn-outline-secondary">预览</button>
+              <button class="btn btn-primary" @click="submitComment">Submit</button>
+              <button class="btn btn-outline-secondary">Preview</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 侧边栏 -->
-      <div class="col-md-4">
-        <div class="card mb-3">
-          <div class="card-body">
-            <h4 class="card-title mb-3">版块导航</h4>
-            <div class="list-group">
-              <a href="#" class="list-group-item list-group-item-action active">科技前沿</a>
-              <a href="#" class="list-group-item list-group-item-action">数码产品</a>
-              <a href="#" class="list-group-item list-group-item-action">软件开发</a>
-            </div>
-
-            <hr class="my-3">
-
-            <div class="list-group">
-              <a href="#" class="list-group-item list-group-item-action">我的帖子</a>
-              <a href="#" class="list-group-item list-group-item-action">消息通知</a>
-              <a href="#" class="list-group-item list-group-item-action">论坛帮助</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-body">
-            <h4 class="card-title mb-3">热门话题</h4>
-            <div class="list-group">
-              <a href="#"
-                 class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                量子计算机新突破
-                <span class="badge bg-primary rounded-pill">128</span>
-              </a>
-              <a href="#"
-                 class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                自动驾驶安全讨论
-                <span class="badge bg-primary rounded-pill">96</span>
-              </a>
-              <a href="#"
-                 class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                元宇宙未来发展
-                <span class="badge bg-primary rounded-pill">75</span>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
+      <SideBar/>
 
     </div>
     <div v-if="postNotFound" class="col-12 d-flex justify-content-center align-items-center"
          style="height: 70vh;">
-      <h3 class="text-muted">无效的帖子ID</h3>
+      <h3 class="text-muted">Invalid post ID</h3>
     </div>
     <div v-if="postDeleted" class="col-12 d-flex justify-content-center align-items-center"
          style="height: 70vh;">
-      <h3 class="text-muted">帖子已删除</h3>
+      <h3 class="text-muted">Post has been deleted</h3>
     </div>
   </div>
 </template>
+
 
 <style scoped>
 .post-body {

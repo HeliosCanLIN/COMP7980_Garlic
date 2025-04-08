@@ -1,29 +1,64 @@
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import {ref} from 'vue'
+import {useRouter} from 'vue-router'
+import SideBar from "@/components/SideBar.vue";
 
 const router = useRouter()
 
 // 表单数据
 const newPost = ref({
   title: '',
-  section: '小熊维尼',
+  section: 'Winnie',
   content: '',
   UserID: localStorage.getItem("id"),
 })
 
 // 版块选项
 const sections = ref([
-  '小熊维尼',
-  '跳跳虎',
-  '玲娜贝儿',
-  '星黛露',
-  '杰拉多尼',
-  '可琦安'
+  'Winnie',
+  'Tigger',
+  'Piglet',
+  'Eeyore',
+  'Rabbit',
+  'Roo',
+  'Owl',
+  'Lumpy',
 ])
 
 // 提交状态
 const submitting = ref(false)
+const generating = ref(false)
+
+// OpenAI 生成内容
+const generateContent = async () => {
+  if (!newPost.value.title.trim()) return alert('请先输入标题')
+
+  generating.value = true
+
+  try {
+    const response = await fetch('/api/ai/generate-content', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({
+        title: newPost.value.title,
+        section: newPost.value.section
+      })
+    })
+
+    if (!response.ok) throw new Error('生成失败')
+    const data = await response.json()
+
+    newPost.value.content = data.generatedContent
+  } catch (error) {
+    console.error('生成失败:', error)
+    alert('内容生成失败，请手动输入')
+  } finally {
+    generating.value = false
+  }
+}
 
 // 表单提交
 const submitPost = async () => {
@@ -77,15 +112,26 @@ const submitPost = async () => {
               <!-- 标题输入 -->
               <div class="mb-3">
                 <label for="postTitle" class="form-label">标题</label>
-                <input
-                  type="text"
-                  class="form-control form-control-lg"
-                  id="postTitle"
-                  v-model="newPost.title"
-                  placeholder="请输入标题（最多50字）"
-                  maxlength="50"
-                  required
-                >
+                <div class="input-group">
+                  <input
+                    type="text"
+                    class="form-control form-control-lg"
+                    id="postTitle"
+                    v-model="newPost.title"
+                    placeholder="请输入标题（最多50字）"
+                    maxlength="50"
+                    required
+                  >
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary"
+                    @click="generateContent"
+                    :disabled="generating"
+                  >
+                    <span v-if="generating" class="spinner-border spinner-border-sm"></span>
+                    {{ generating ? '生成中...' : 'AI生成' }}
+                  </button>
+                </div>
               </div>
 
               <!-- 版块选择 -->
@@ -137,48 +183,7 @@ const submitPost = async () => {
           </div>
         </div>
       </div>
-
-      <!-- 侧边栏（保持与原页面一致） -->
-      <div class="col-md-4">
-        <div class="card mb-3">
-          <div class="card-body">
-            <h4 class="card-title mb-3">版块导航</h4>
-            <div class="list-group">
-              <a href="#" class="list-group-item list-group-item-action active">科技前沿</a>
-              <a href="#" class="list-group-item list-group-item-action">数码产品</a>
-              <a href="#" class="list-group-item list-group-item-action">软件开发</a>
-            </div>
-
-            <hr class="my-3">
-
-            <div class="list-group">
-              <a href="#" class="list-group-item list-group-item-action">我的帖子</a>
-              <a href="#" class="list-group-item list-group-item-action">消息通知</a>
-              <a href="#" class="list-group-item list-group-item-action">论坛帮助</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-body">
-            <h4 class="card-title mb-3">发帖指南</h4>
-            <div class="list-group">
-              <div class="list-group-item">
-                <h6 class="mb-2">• 标题明确</h6>
-                <p class="text-muted small mb-0">准确概括内容要点，避免使用模糊表述</p>
-              </div>
-              <div class="list-group-item">
-                <h6 class="mb-2">• 内容规范</h6>
-                <p class="text-muted small mb-0">遵守社区规则，禁止发布不当内容</p>
-              </div>
-              <div class="list-group-item">
-                <h6 class="mb-2">• 格式清晰</h6>
-                <p class="text-muted small mb-0">合理使用段落和Markdown格式</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <SideBar />
     </div>
   </div>
 </template>
