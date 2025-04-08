@@ -1,11 +1,11 @@
 <script setup>
-import {ref} from 'vue'
-import {useRouter} from 'vue-router'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import SideBar from "@/components/SideBar.vue";
 
 const router = useRouter()
 
-// 表单数据
+// Form data
 const newPost = ref({
   title: '',
   section: 'Winnie',
@@ -13,7 +13,7 @@ const newPost = ref({
   UserID: localStorage.getItem("id"),
 })
 
-// 版块选项
+// Section options
 const sections = ref([
   'Winnie',
   'Tigger',
@@ -25,13 +25,13 @@ const sections = ref([
   'Lumpy',
 ])
 
-// 提交状态
+// Submission status
 const submitting = ref(false)
 const generating = ref(false)
 
-// OpenAI 生成内容
+// OpenAI content generation
 const generateContent = async () => {
-  if (!newPost.value.title.trim()) return alert('请先输入标题')
+  if (!newPost.value.title.trim()) return alert('Please enter a title first.')
 
   generating.value = true
 
@@ -48,22 +48,22 @@ const generateContent = async () => {
       })
     })
 
-    if (!response.ok) throw new Error('生成失败')
+    if (!response.ok) throw new Error('Generation failed.')
     const data = await response.json()
 
     newPost.value.content = data.generatedContent
   } catch (error) {
-    console.error('生成失败:', error)
-    alert('内容生成失败，请手动输入')
+    console.error('Generation failed:', error)
+    alert('Content generation failed, please enter manually.')
   } finally {
     generating.value = false
   }
 }
 
-// 表单提交
+// Form submission
 const submitPost = async () => {
   if (!newPost.value.title.trim() || !newPost.value.content.trim()) {
-    return alert('标题和内容不能为空')
+    return alert('Title and content cannot be empty.')
   }
 
   submitting.value = true
@@ -78,12 +78,12 @@ const submitPost = async () => {
       body: JSON.stringify(newPost.value)
     })
 
-    if (!response.ok) throw new Error('提交失败')
+    if (!response.ok) throw new Error('Submission failed.')
 
-    router.push('/') // 跳转到论坛首页
+    router.push('/') // Redirect to forum homepage
   } catch (error) {
-    console.error('发帖失败:', error)
-    alert('发帖失败，请稍后重试')
+    console.error('Post failed:', error)
+    alert('Post failed, please try again later.')
   } finally {
     submitting.value = false
   }
@@ -93,32 +93,32 @@ const submitPost = async () => {
 <template>
   <div class="container mt-3">
     <div class="row g-4">
-      <!-- 主内容区 -->
+      <!-- Main content area -->
       <div class="col-md-8">
-        <!-- 面包屑导航 -->
+        <!-- Breadcrumb navigation -->
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="#">论坛首页</a></li>
-            <li class="breadcrumb-item active" aria-current="page">发表新帖</li>
+            <li class="breadcrumb-item"><a href="#">Forum Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Create New Post</li>
           </ol>
         </nav>
 
-        <!-- 发帖表单 -->
+        <!-- Post creation form -->
         <div class="card">
           <div class="card-body">
-            <h3 class="card-title mb-4">发表新主题</h3>
+            <h3 class="card-title mb-4">Create New Topic</h3>
 
             <form @submit.prevent="submitPost">
-              <!-- 标题输入 -->
+              <!-- Title input -->
               <div class="mb-3">
-                <label for="postTitle" class="form-label">标题</label>
+                <label for="postTitle" class="form-label">Title</label>
                 <div class="input-group">
                   <input
                     type="text"
                     class="form-control form-control-lg"
                     id="postTitle"
                     v-model="newPost.title"
-                    placeholder="请输入标题（最多50字）"
+                    placeholder="Enter title (up to 50 characters)"
                     maxlength="50"
                     required
                   >
@@ -129,14 +129,14 @@ const submitPost = async () => {
                     :disabled="generating"
                   >
                     <span v-if="generating" class="spinner-border spinner-border-sm"></span>
-                    {{ generating ? '生成中...' : 'AI生成' }}
+                    {{ generating ? 'Generating...' : 'Generate with AI' }}
                   </button>
                 </div>
               </div>
 
-              <!-- 版块选择 -->
+              <!-- Section selection -->
               <div class="mb-3">
-                <label for="postSection" class="form-label">选择版块</label>
+                <label for="postSection" class="form-label">Select Section</label>
                 <select
                   class="form-select"
                   id="postSection"
@@ -148,27 +148,27 @@ const submitPost = async () => {
                 </select>
               </div>
 
-              <!-- 内容输入 -->
+              <!-- Content input -->
               <div class="mb-4">
-                <label for="postContent" class="form-label">内容</label>
+                <label for="postContent" class="form-label">Content</label>
                 <textarea
                   class="form-control"
                   id="postContent"
                   v-model="newPost.content"
                   rows="12"
-                  placeholder="请输入内容（支持Markdown语法）"
+                  placeholder="Enter content (supports Markdown syntax)"
                   required
                 ></textarea>
               </div>
 
-              <!-- 操作按钮 -->
+              <!-- Action buttons -->
               <div class="d-flex gap-2 justify-content-end">
                 <button
                   type="button"
                   class="btn btn-outline-secondary"
                   @click="router.go(-1)"
                 >
-                  取消
+                  Cancel
                 </button>
                 <button
                   type="submit"
@@ -176,7 +176,7 @@ const submitPost = async () => {
                   :disabled="submitting"
                 >
                   <span v-if="submitting" class="spinner-border spinner-border-sm"></span>
-                  {{ submitting ? '提交中...' : '发布主题' }}
+                  {{ submitting ? 'Submitting...' : 'Post Topic' }}
                 </button>
               </div>
             </form>
