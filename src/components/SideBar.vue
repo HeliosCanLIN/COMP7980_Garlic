@@ -42,7 +42,7 @@ onMounted(async () => {
         <div class="list-group">
           <a href="/profile" class="list-group-item list-group-item-action">My Profile</a>
           <a href="/ChangePassword" class="list-group-item list-group-item-action">Setting</a>
-          <a href="#" class="list-group-item list-group-item-action">Forum Help</a>
+          <a href="/ForumHelp" class="list-group-item list-group-item-action">Forum Help</a>
         </div>
       </div>
     </div>
