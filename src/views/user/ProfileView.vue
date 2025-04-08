@@ -28,6 +28,7 @@ onMounted(async () => {
     body: JSON.stringify({id: id})
   });
   if (!response.ok) {
+    alert("1");
     await router.push("/");
   } else {
     const data = await response.json();
@@ -74,7 +75,7 @@ const deleteAccount = async () => {
       <div class="col-3">
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title">发帖数</h5>
+            <h5 class="card-title">Posts</h5>
             <div class="card">
               <p class="card-text">{{ postCount }}</p>
             </div>
@@ -84,7 +85,7 @@ const deleteAccount = async () => {
       <div class="col-3">
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title">回帖数</h5>
+            <h5 class="card-title">Comments</h5>
             <div class="card">
               <p class="card-text">{{ commentCount }}</p>
             </div>
@@ -94,7 +95,7 @@ const deleteAccount = async () => {
       <div class="col-3">
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title">获赞数</h5>
+            <h5 class="card-title">Received likes</h5>
             <div class="card">
               <p class="card-text">{{ beLiked }}</p>
             </div>
@@ -104,7 +105,7 @@ const deleteAccount = async () => {
       <div class="col-3">
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title">点赞数</h5>
+            <h5 class="card-title">Likes</h5>
             <div class="card">
               <p class="card-text">{{ likeCount }}</p>
             </div>
